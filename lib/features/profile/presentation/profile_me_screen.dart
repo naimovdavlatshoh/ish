@@ -14,8 +14,8 @@ class ProfileMeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(profileMeProvider);
-    final t = ref.watchTr;
+    final AsyncValue<ProfileMe> profileAsync = ref.watch(profileMeProvider);
+    final String Function(String) t = ref.watchTr;
 
     return Scaffold(
       backgroundColor: AppColors.background,

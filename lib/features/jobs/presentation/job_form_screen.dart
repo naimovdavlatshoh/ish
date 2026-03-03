@@ -8,7 +8,6 @@ import '../../../core/utils/extensions.dart';
 import '../../companies/providers/company_provider.dart';
 import '../providers/my_jobs_provider.dart';
 import '../../../shared/models/job_model.dart';
-import '../../../core/localization/language_provider.dart';
 
 class JobFormScreen extends ConsumerStatefulWidget {
   final JobModel? job;

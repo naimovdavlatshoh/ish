@@ -7,6 +7,7 @@ import '../../../core/utils/extensions.dart';
 import '../providers/real_chat_provider.dart';
 import '../providers/global_chat_provider.dart';
 import '../../profile/providers/user_me_provider.dart';
+import '../../../shared/models/user_me_model.dart';
 import '../../../core/localization/language_provider.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -28,11 +29,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(conversationListProvider);
-    final userMe = ref.watch(userMeProvider).valueOrNull;
-    final myId = userMe?.id ?? 0;
-    final globalState = ref.watch(globalChatProvider);
-    final t = ref.watchTr;
+    final ConversationListState state = ref.watch(conversationListProvider);
+    final UserMe? userMe = ref.watch(userMeProvider).valueOrNull;
+    final int myId = userMe?.id ?? 0;
+    final GlobalChatState globalState = ref.watch(globalChatProvider);
+    final String Function(String) t = ref.watchTr;
 
     ref.listen(globalChatProvider, (prev, next) {
       if (prev?.unreadByConversation != next.unreadByConversation) {

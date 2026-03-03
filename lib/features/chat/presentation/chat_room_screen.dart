@@ -5,6 +5,7 @@ import '../../../core/utils/extensions.dart';
 import '../providers/real_chat_provider.dart';
 import '../providers/global_chat_provider.dart';
 import '../../profile/providers/user_me_provider.dart';
+import '../../../shared/models/user_me_model.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/chat_input.dart';
 import '../../../core/localization/language_provider.dart';
@@ -53,10 +54,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(chatRoomProvider(_conversationId));
-    final userMe = ref.watch(userMeProvider).valueOrNull;
-    final myId = userMe?.id ?? 0;
-    final other = state.conversation?.otherParticipant(myId);
+    final ChatRoomState state = ref.watch(chatRoomProvider(_conversationId));
+    final UserMe? userMe = ref.watch(userMeProvider).valueOrNull;
+    final int myId = userMe?.id ?? 0;
+    final ParticipantModel? other = state.conversation?.otherParticipant(myId);
 
     // Scroll to bottom when messages arrive
     if (state.messages.isNotEmpty) _scrollToBottom();

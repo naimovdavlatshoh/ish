@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:linkedin_clone/core/config/env.dart';
 import 'package:linkedin_clone/core/services/token_storage.dart';
-import '../../auth/providers/auth_provider.dart';
 
 class EmployeeModel {
   final int id;

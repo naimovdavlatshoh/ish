@@ -7,7 +7,6 @@ import '../../../core/widgets/buttons/primary_button.dart';
 import '../providers/profile_me_provider.dart';
 import '../providers/user_me_provider.dart';
 import '../../../shared/models/profile_me_model.dart';
-import '../../../shared/models/user_me_model.dart';
 import '../../../core/utils/extensions.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';

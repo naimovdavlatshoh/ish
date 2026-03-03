@@ -6,6 +6,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/dashboard_stats_provider.dart';
 import '../../../shared/models/dashboard_stats_model.dart';
+import '../../../shared/models/user_model.dart';
 import '../../../core/localization/language_provider.dart';
 
 class FeedScreen extends ConsumerWidget {
@@ -13,14 +14,14 @@ class FeedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(authProvider).user;
-    final name = currentUser?.name ?? 'foydalanuvchi';
-    final statsAsync = ref.watch(dashboardStatsProvider);
+    final UserModel? currentUser = ref.watch(authProvider).user;
+    final String name = currentUser?.name ?? 'foydalanuvchi';
+    final AsyncValue<DashboardStats> statsAsync = ref.watch(dashboardStatsProvider);
     final DashboardStats stats = statsAsync.maybeWhen(
-      data: (value) => value,
+      data: (DashboardStats value) => value,
       orElse: () => DashboardStats.empty,
     );
-    final t = ref.watchTr;
+    final String Function(String) t = ref.watchTr;
 
     return Container(
       color: AppColors.background,

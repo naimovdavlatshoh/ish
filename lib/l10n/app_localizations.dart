@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 class AppLocalizations {
   static const Map<String, String> en = {

@@ -1,4 +1,3 @@
-import 'user_model.dart';
 import 'job_model.dart';
 
 class ApplicationModel {

@@ -5,7 +5,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import 'package:linkedin_clone/features/chat/providers/chat_invitation_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/extensions.dart';
-import '../../../../core/localization/language_provider.dart';
 
 class ChatInvitationDialog extends ConsumerStatefulWidget {
   final int userId;
