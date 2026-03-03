@@ -7,7 +7,7 @@ import '../../../core/config/env.dart';
 import '../../../core/services/token_storage.dart';
 import '../../../shared/models/dashboard_stats_model.dart';
 
-final dashboardStatsProvider =
+final FutureProvider<DashboardStats> dashboardStatsProvider =
     FutureProvider<DashboardStats>((ref) async {
   if (Environment.useMockData) {
     // Static mock data for development mode
@@ -20,17 +20,17 @@ final dashboardStatsProvider =
   }
 
   const tokenStorage = TokenStorage();
-  final token = await tokenStorage.getAccessToken();
+  final String? token = await tokenStorage.getAccessToken();
 
   if (token == null || token.isEmpty) {
     throw Exception('Access token not found');
   }
 
-  final uri = Uri.parse(
+  final Uri uri = Uri.parse(
     '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/profiles/me/dashboard-stats',
   );
 
-  final response = await http.get(
+  final http.Response response = await http.get(
     uri,
     headers: {
       'Content-Type': 'application/json',

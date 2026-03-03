@@ -34,7 +34,7 @@ class JobApplicationsNotifier extends StateNotifier<JobApplicationsState> {
 
   Future<Map<String, String>> _getAuthHeaders() async {
     const tokenStorage = TokenStorage();
-    final token = await tokenStorage.getAccessToken();
+    final String? token = await tokenStorage.getAccessToken();
     return {
       if (token != null) 'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -44,9 +44,9 @@ class JobApplicationsNotifier extends StateNotifier<JobApplicationsState> {
   Future<void> loadApplications(int jobId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/job/$jobId');
-      final response = await http.get(uri, headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/job/$jobId');
+      final http.Response response = await http.get(uri, headers: headers);
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final dynamic decodedData = jsonDecode(response.body);
@@ -70,10 +70,10 @@ class JobApplicationsNotifier extends StateNotifier<JobApplicationsState> {
 
   Future<bool> updateApplicationStatus(int applicationId, String status) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/$applicationId');
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/$applicationId');
       
-      final response = await http.put(
+      final http.Response response = await http.put(
         uri,
         headers: headers,
         body: jsonEncode({'status': status}),

@@ -32,17 +32,17 @@ class ProfileMeNotifier extends StateNotifier<AsyncValue<ProfileMe>> {
     state = const AsyncValue.loading();
     try {
       const tokenStorage = TokenStorage();
-      final token = await tokenStorage.getAccessToken();
+      final String? token = await tokenStorage.getAccessToken();
 
       if (token == null || token.isEmpty) {
         throw Exception('Access token not found');
       }
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/profiles/me',
       );
 
-      final response = await http.get(
+      final http.Response response = await http.get(
         uri,
         headers: {
           'Content-Type': 'application/json',
@@ -65,15 +65,15 @@ class ProfileMeNotifier extends StateNotifier<AsyncValue<ProfileMe>> {
   Future<bool> updateProfile(Map<String, dynamic> data) async {
     try {
       const tokenStorage = TokenStorage();
-      final token = await tokenStorage.getAccessToken();
+      final String? token = await tokenStorage.getAccessToken();
 
       if (token == null || token.isEmpty) return false;
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/profiles/me',
       );
 
-      final response = await http.put(
+      final http.Response response = await http.put(
         uri,
         headers: {
           'Content-Type': 'application/json',
@@ -95,15 +95,15 @@ class ProfileMeNotifier extends StateNotifier<AsyncValue<ProfileMe>> {
   Future<bool> uploadFile(String filePath) async {
     try {
       const tokenStorage = TokenStorage();
-      final token = await tokenStorage.getAccessToken();
+      final String? token = await tokenStorage.getAccessToken();
 
       if (token == null || token.isEmpty) return false;
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/profiles/me',
       );
 
-      final request = http.MultipartRequest('PUT', uri);
+      final http.MultipartRequest request = http.MultipartRequest('PUT', uri);
       request.headers['Authorization'] = 'Bearer $token';
 
       request.files.add(
@@ -115,7 +115,7 @@ class ProfileMeNotifier extends StateNotifier<AsyncValue<ProfileMe>> {
       );
 
       final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final http.Response response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         await fetchProfile();
@@ -130,15 +130,15 @@ class ProfileMeNotifier extends StateNotifier<AsyncValue<ProfileMe>> {
   Future<bool> linkTelegram(String code) async {
     try {
       const tokenStorage = TokenStorage();
-      final token = await tokenStorage.getAccessToken();
+      final String? token = await tokenStorage.getAccessToken();
 
       if (token == null || token.isEmpty) return false;
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/auth/telegram/link',
       );
 
-      final response = await http.post(
+      final http.Response response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',

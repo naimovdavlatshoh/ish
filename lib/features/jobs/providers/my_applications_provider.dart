@@ -34,7 +34,7 @@ class MyApplicationsNotifier extends StateNotifier<MyApplicationsState> {
 
   Future<Map<String, String>> _headers() async {
     const s = TokenStorage();
-    final token = await s.getAccessToken();
+    final String? token = await s.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -44,11 +44,11 @@ class MyApplicationsNotifier extends StateNotifier<MyApplicationsState> {
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/my-applications';
-      final response = await http.get(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/my-applications';
+      final http.Response response = await http.get(Uri.parse(url), headers: await _headers());
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         List<ApplicationModel> apps;
         if (data is List) {
           apps = data.map((e) => ApplicationModel.fromJson(e)).toList();
@@ -68,8 +68,8 @@ class MyApplicationsNotifier extends StateNotifier<MyApplicationsState> {
 
   Future<bool> withdraw(int applicationId) async {
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/$applicationId';
-      final response = await http.delete(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/$applicationId';
+      final http.Response response = await http.delete(Uri.parse(url), headers: await _headers());
       if (response.statusCode == 204 || response.statusCode == 200) {
         state = state.copyWith(
           applications: state.applications.where((a) => a.id != applicationId).toList(),

@@ -86,7 +86,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
   Future<Map<String, String>> _getAuthHeaders() async {
     const tokenStorage = TokenStorage();
-    final token = await tokenStorage.getAccessToken();
+    final String? token = await tokenStorage.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -96,12 +96,12 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
   Future<void> loadProfile(int userId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final headers = await _getAuthHeaders();
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/profiles/user/$userId';
-      final response = await http.get(Uri.parse(url), headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/profiles/user/$userId';
+      final http.Response response = await http.get(Uri.parse(url), headers: headers);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         state = state.copyWith(
           profile: UserProfileModel.fromJson(data),
           isLoading: false,

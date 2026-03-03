@@ -43,11 +43,11 @@ Page<dynamic> buildPageWithCustomTransition({
       const end = Offset.zero;
       const curve = Curves.easeOutCubic;
 
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-      var offsetAnimation = animation.drive(tween);
+      final Animatable<Offset> tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      final Animation<Offset> offsetAnimation = animation.drive(tween);
 
-      var fadeTween = Tween<double>(begin: 0.0, end: 1.0);
-      var fadeAnimation = animation.drive(fadeTween);
+      final Tween<double> fadeTween = Tween<double>(begin: 0.0, end: 1.0);
+      final Animation<double> fadeAnimation = animation.drive(fadeTween);
 
       return SlideTransition(
         position: offsetAnimation,
@@ -61,15 +61,15 @@ Page<dynamic> buildPageWithCustomTransition({
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final listenable = ref.watch(routerListenableProvider);
+  final Listenable listenable = ref.watch(routerListenableProvider);
 
   return GoRouter(
     initialLocation: '/feed',
     refreshListenable: listenable,
     redirect: (context, state) {
-      final authState = ref.read(authProvider);
-      final isAuthenticated = authState.isAuthenticated;
-      final isLoginRoute = state.matchedLocation == '/login' ||
+      final AuthState authState = ref.read(authProvider);
+      final bool isAuthenticated = authState.isAuthenticated;
+      final bool isLoginRoute = state.matchedLocation == '/login' ||
                           state.matchedLocation == '/register';
 
       if (!isAuthenticated && !isLoginRoute) {
@@ -94,7 +94,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // Determine selected index based on current route
           int selectedIndex = 0;
           // Use matchedLocation for robustness
-          final path = state.matchedLocation;
+          final String path = state.matchedLocation;
           
           if (path.startsWith('/feed')) {
             selectedIndex = 0;
@@ -217,7 +217,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/chat/:chatId',
             pageBuilder: (context, state) {
-              final chatId = state.pathParameters['chatId'] ?? '';
+              final String chatId = state.pathParameters['chatId'] ?? '';
               return buildPageWithCustomTransition(
                 context: context,
                 state: state,
@@ -236,7 +236,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile/edit',
             pageBuilder: (context, state) {
-              final section = state.extra as String?;
+              final String? section = state.extra as String?;
               return buildPageWithCustomTransition(
                 context: context,
                 state: state,
@@ -247,7 +247,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile/:userId',
             pageBuilder: (context, state) {
-              final userId = state.pathParameters['userId'] ?? '';
+              final String userId = state.pathParameters['userId'] ?? '';
               return buildPageWithCustomTransition(
                 context: context,
                 state: state,
@@ -274,8 +274,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/companies/edit/:id',
             pageBuilder: (context, state) {
-              final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-              final company = state.extra as CompanyModel?;
+              final int id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+              final CompanyModel? company = state.extra as CompanyModel?;
               return buildPageWithCustomTransition(
                 context: context,
                 state: state,
@@ -286,8 +286,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/jobs/:id',
             pageBuilder: (context, state) {
-              final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-              final job = state.extra as JobModel?;
+              final int id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+              final JobModel? job = state.extra as JobModel?;
               
               return buildPageWithCustomTransition(
                 context: context,
@@ -299,8 +299,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/jobs/:id/applications',
             pageBuilder: (context, state) {
-              final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-              final jobTitle = state.extra as String? ?? 'Vakansiya';
+              final int id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+              final String jobTitle = state.extra as String? ?? 'Vakansiya';
               
               return buildPageWithCustomTransition(
                 context: context,
@@ -316,7 +316,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 final routerListenableProvider = Provider<ChangeNotifier>((ref) {
-  final notifier = RouterListenable();
+  final RouterListenable notifier = RouterListenable();
   ref.listen(authProvider, (_, __) => notifier.notify());
   return notifier;
 });

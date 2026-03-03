@@ -11,7 +11,7 @@ class MyJobsNotifier extends StateNotifier<JobsState> {
 
   Future<Map<String, String>> _getAuthHeaders() async {
     const tokenStorage = TokenStorage();
-    final token = await tokenStorage.getAccessToken();
+    final String? token = await tokenStorage.getAccessToken();
     return {
       if (token != null) 'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -22,20 +22,20 @@ class MyJobsNotifier extends StateNotifier<JobsState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/my-jobs')
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/my-jobs')
           .replace(queryParameters: {
             'skip': '0',
             'limit': '100',
           });
 
-      final response = await http.get(uri, headers: await _getAuthHeaders());
+      final http.Response response = await http.get(uri, headers: await _getAuthHeaders());
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         final List<dynamic>? items = data['items'];
-        final total = data['total'] as int? ?? (items?.length ?? 0);
+        final int total = data['total'] as int? ?? (items?.length ?? 0);
 
-        final jobs = (items ?? []).map((e) => JobModel.fromJson(e)).toList();
+        final List<JobModel> jobs = (items ?? []).map((e) => JobModel.fromJson(e)).toList();
 
         state = state.copyWith(
           jobs: jobs,
@@ -58,10 +58,10 @@ class MyJobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> updateJobStatus(int jobId, String status) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
       
-      final response = await http.put(
+      final http.Response response = await http.put(
         uri,
         headers: headers,
         body: jsonEncode({'status': status}),
@@ -86,10 +86,10 @@ class MyJobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> createJob(Map<String, dynamic> data) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs');
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs');
       
-      final response = await http.post(
+      final http.Response response = await http.post(
         uri,
         headers: headers,
         body: jsonEncode(data),
@@ -107,10 +107,10 @@ class MyJobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> updateJob(int jobId, Map<String, dynamic> data) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
       
-      final response = await http.put(
+      final http.Response response = await http.put(
         uri,
         headers: headers,
         body: jsonEncode(data),
@@ -128,9 +128,9 @@ class MyJobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> deleteJob(int jobId) async {
     try {
-       final headers = await _getAuthHeaders();
-       final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
-       final response = await http.delete(uri, headers: headers);
+       final Map<String, String> headers = await _getAuthHeaders();
+       final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
+       final http.Response response = await http.delete(uri, headers: headers);
        if (response.statusCode >= 200 && response.statusCode < 300) {
          state = state.copyWith(
            jobs: state.jobs.where((j) => j.id != jobId).toList(),

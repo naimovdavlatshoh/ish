@@ -100,7 +100,7 @@ class EmployeesNotifier extends StateNotifier<EmployeesState> {
 
   Future<Map<String, String>> _getAuthHeaders() async {
     const tokenStorage = TokenStorage();
-    final token = await tokenStorage.getAccessToken();
+    final String? token = await tokenStorage.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -111,8 +111,8 @@ class EmployeesNotifier extends StateNotifier<EmployeesState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     
     try {
-      final currentSkip = skip ?? state.skip;
-      final currentSkills = skills ?? state.selectedSkills;
+      final int currentSkip = skip ?? state.skip;
+      final List<String> currentSkills = skills ?? state.selectedSkills;
       
       String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/users/employees?skip=$currentSkip&limit=${state.limit}';
       
@@ -120,13 +120,13 @@ class EmployeesNotifier extends StateNotifier<EmployeesState> {
         url += '&skills=${currentSkills.join(',')}';
       }
 
-      final headers = await _getAuthHeaders();
-      final response = await http.get(Uri.parse(url), headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final http.Response response = await http.get(Uri.parse(url), headers: headers);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         final List<dynamic> items = data['items'];
-        final employees = items.map((json) => EmployeeModel.fromJson(json)).toList();
+        final List<EmployeeModel> employees = items.map((json) => EmployeeModel.fromJson(json as Map<String, dynamic>)).toList();
         
         state = state.copyWith(
           employees: employees,
@@ -151,12 +151,12 @@ class EmployeesNotifier extends StateNotifier<EmployeesState> {
 
   void addSkill(String skill) {
     if (skill.isEmpty) return;
-    final newSkills = [...state.selectedSkills, skill];
+    final List<String> newSkills = [...state.selectedSkills, skill];
     loadEmployees(skip: 0, skills: newSkills);
   }
 
   void removeSkill(String skill) {
-    final newSkills = state.selectedSkills.where((s) => s != skill).toList();
+    final List<String> newSkills = state.selectedSkills.where((s) => s != skill).toList();
     loadEmployees(skip: 0, skills: newSkills);
   }
 }

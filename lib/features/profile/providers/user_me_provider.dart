@@ -15,17 +15,17 @@ class UserMeNotifier extends StateNotifier<AsyncValue<UserMe>> {
     state = const AsyncValue.loading();
     try {
       const tokenStorage = TokenStorage();
-      final token = await tokenStorage.getAccessToken();
+      final String? token = await tokenStorage.getAccessToken();
 
       if (token == null || token.isEmpty) {
         throw Exception('Access token not found');
       }
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/users/me',
       );
 
-      final response = await http.get(
+      final http.Response response = await http.get(
         uri,
         headers: {
           'Content-Type': 'application/json',

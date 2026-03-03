@@ -7,6 +7,7 @@ import '../providers/employees_provider.dart';
 import 'widgets/chat_invitation_dialog.dart';
 import 'employee_profile_screen.dart';
 import '../../../core/localization/language_provider.dart';
+import '../../../core/utils/extensions.dart';
 
 class EmployeesScreen extends ConsumerStatefulWidget {
   const EmployeesScreen({super.key});
@@ -237,7 +238,9 @@ class _EmployeeCard extends StatelessWidget {
               CircleAvatar(
                 radius: 32,
                 backgroundColor: AppColors.primary.withOpacity(0.1),
-                backgroundImage: employee.avatar != null ? NetworkImage(employee.avatar!) : null,
+                backgroundImage: employee.avatar != null && employee.avatar!.isNotEmpty
+                    ? NetworkImage(employee.avatar!.fullImageUrl)
+                    : null,
                 child: employee.avatar == null 
                   ? const Icon(Icons.person, color: AppColors.primary, size: 32)
                   : null,

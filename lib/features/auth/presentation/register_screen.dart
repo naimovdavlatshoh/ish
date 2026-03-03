@@ -18,15 +18,15 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   late final TextEditingController _phoneController;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
-  final _phoneMaskFormatter = MaskTextInputFormatter(
+  final MaskTextInputFormatter _phoneMaskFormatter = MaskTextInputFormatter(
     mask: '### ## ### ## ##',
     filter: {"#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
@@ -59,7 +59,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
-      final phone = _phoneController.text.replaceAll(' ', '');
+      final String phone = _phoneController.text.replaceAll(' ', '');
       await ref.read(authProvider.notifier).register(
             _firstNameController.text,
             _lastNameController.text,
@@ -68,7 +68,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             _passwordController.text,
           );
       if (!mounted) return;
-      final authState = ref.read(authProvider);
+      final AuthState authState = ref.read(authProvider);
       if (authState.isAuthenticated) {
         context.go('/feed');
       } else if (authState.errorMessage != null) {
@@ -80,7 +80,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final AuthState authState = ref.watch(authProvider);
     final t = ref.watchTr;
 
     return Scaffold(

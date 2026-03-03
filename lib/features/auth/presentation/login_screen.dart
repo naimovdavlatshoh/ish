@@ -18,11 +18,11 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late final TextEditingController _phoneController;
-  final _passwordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  final _phoneMaskFormatter = MaskTextInputFormatter(
+  final MaskTextInputFormatter _phoneMaskFormatter = MaskTextInputFormatter(
     mask: '### ## ### ## ##',
     filter: {"#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
@@ -51,11 +51,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      final phone = _phoneController.text.replaceAll(' ', '');
+      final String phone = _phoneController.text.replaceAll(' ', '');
       await ref.read(authProvider.notifier).login(phone, _passwordController.text);
 
       if (!mounted) return;
-      final authState = ref.read(authProvider);
+      final AuthState authState = ref.read(authProvider);
       if (authState.isAuthenticated) {
         context.go('/feed');
       } else if (authState.errorMessage != null) {
@@ -67,7 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final AuthState authState = ref.watch(authProvider);
     final t = ref.watchTr;
 
     return Scaffold(

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/models/user_model.dart';
-import '../../../core/mock/mock_users.dart';
 
 class ProfileState {
   final UserModel? user;
@@ -33,12 +32,11 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      // Simulate API call
+      // API call to be implemented
       await Future.delayed(const Duration(milliseconds: 500));
-      final user = MockUsers.getUserById(userId);
-
+      
       state = state.copyWith(
-        user: user,
+        user: null, // Replace with real API call later
         isLoading: false,
       );
     } catch (e) {
@@ -52,7 +50,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 
 final profileProvider = StateNotifierProvider.family<ProfileNotifier, ProfileState, String>(
   (ref, userId) {
-    final notifier = ProfileNotifier();
+    final ProfileNotifier notifier = ProfileNotifier();
     notifier.loadProfile(userId);
     return notifier;
   },

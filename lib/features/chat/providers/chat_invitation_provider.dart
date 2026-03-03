@@ -9,7 +9,7 @@ class ChatInvitationNotifier extends StateNotifier<AsyncValue<void>> {
 
   Future<Map<String, String>> _getAuthHeaders() async {
     const tokenStorage = TokenStorage();
-    final token = await tokenStorage.getAccessToken();
+    final String? token = await tokenStorage.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -18,9 +18,9 @@ class ChatInvitationNotifier extends StateNotifier<AsyncValue<void>> {
 
   Future<dynamic> checkExistingChat(int userId) async {
     try {
-      final headers = await _getAuthHeaders();
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat/with-user/$userId';
-      final response = await http.get(Uri.parse(url), headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat/with-user/$userId';
+      final http.Response response = await http.get(Uri.parse(url), headers: headers);
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -34,10 +34,10 @@ class ChatInvitationNotifier extends StateNotifier<AsyncValue<void>> {
   Future<bool> sendInvitation(int toUserId, String message) async {
     state = const AsyncValue.loading();
     try {
-      final headers = await _getAuthHeaders();
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations';
+      final Map<String, String> headers = await _getAuthHeaders();
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations';
       
-      final response = await http.post(
+      final http.Response response = await http.post(
         Uri.parse(url),
         headers: headers,
         body: jsonEncode({

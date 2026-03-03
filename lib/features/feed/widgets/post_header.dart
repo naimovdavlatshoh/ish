@@ -26,7 +26,7 @@ class PostHeader extends StatelessWidget {
         // Avatar
         CircleAvatar(
           radius: 24,
-          backgroundImage: NetworkImage(authorAvatar),
+          backgroundImage: authorAvatar.isNotEmpty ? NetworkImage(authorAvatar.fullImageUrl) : null,
           backgroundColor: AppColors.surfaceVariant,
         ),
         const SizedBox(width: 12),

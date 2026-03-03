@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/models/message_model.dart';
-import '../../../core/mock/mock_messages.dart';
 
 class ChatListState {
   final List<ChatModel> chats;
@@ -35,12 +34,11 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      // Simulate API call
+      // API call to be implemented
       await Future.delayed(const Duration(milliseconds: 500));
-      final chats = MockMessages.getChats();
-
+      
       state = state.copyWith(
-        chats: chats,
+        chats: [], // Replace with real API call later
         isLoading: false,
       );
     } catch (e) {
@@ -95,14 +93,12 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      // Simulate API call
+      // API call to be implemented
       await Future.delayed(const Duration(milliseconds: 500));
-      final chat = MockMessages.getChatById(chatId);
-      final messages = MockMessages.getMessages(chatId);
-
+      
       state = state.copyWith(
-        chat: chat,
-        messages: messages,
+        chat: null, // Replace with real API call later
+        messages: [], // Replace with real API call later
         isLoading: false,
       );
     } catch (e) {
@@ -119,10 +115,10 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     state = state.copyWith(isSending: true);
 
     try {
-      // Simulate API call
+      // API call to be implemented
       await Future.delayed(const Duration(milliseconds: 300));
 
-      final newMessage = MessageModel(
+      final MessageModel newMessage = MessageModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         chatId: chatId,
         senderId: senderId,
@@ -131,7 +127,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         isRead: false,
       );
 
-      final updatedMessages = [...state.messages, newMessage];
+      final List<MessageModel> updatedMessages = [...state.messages, newMessage];
 
       state = state.copyWith(
         messages: updatedMessages,

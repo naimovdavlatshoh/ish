@@ -47,7 +47,7 @@ class JobsFilters {
   }
 
   Map<String, String> toQueryParams() {
-    final params = <String, String>{};
+    final Map<String, String> params = <String, String>{};
     if (jobType != null && jobType!.isNotEmpty) params['job_type'] = jobType!;
     if (location != null && location!.isNotEmpty) params['location'] = location!;
     if (isRemote != null) params['is_remote'] = isRemote!.toString();
@@ -109,7 +109,7 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<Map<String, String>> _getAuthHeaders() async {
     const tokenStorage = TokenStorage();
-    final token = await tokenStorage.getAccessToken();
+    final String? token = await tokenStorage.getAccessToken();
     return {
       if (token != null) 'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -120,20 +120,20 @@ class JobsNotifier extends StateNotifier<JobsState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/saved')
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/saved')
           .replace(queryParameters: {
             'skip': '0',
             'limit': '100', // Load all saved jobs for simplicity or handle pagination later
           });
 
-      final response = await http.get(uri, headers: await _getAuthHeaders());
+      final http.Response response = await http.get(uri, headers: await _getAuthHeaders());
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         final List<dynamic> items = data['items'];
-        final total = data['total'] as int;
+        final int total = data['total'] as int;
 
-        final jobs = items.map((e) => JobModel.fromJson(e)).toList();
+        final List<JobModel> jobs = items.map((e) => JobModel.fromJson(e)).toList();
 
         state = state.copyWith(
           jobs: jobs,
@@ -162,24 +162,24 @@ class JobsNotifier extends StateNotifier<JobsState> {
     }
 
     try {
-      final queryParams = {
+      final Map<String, String> queryParams = {
         'skip': state.skip.toString(),
         'limit': state.limit.toString(),
         'status': 'active',
         ...state.filters.toQueryParams(),
       };
 
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs')
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs')
           .replace(queryParameters: queryParams);
 
-      final response = await http.get(uri, headers: await _getAuthHeaders());
+      final http.Response response = await http.get(uri, headers: await _getAuthHeaders());
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         final List<dynamic> items = data['items'];
-        final total = data['total'] as int;
+        final int total = data['total'] as int;
 
-        final jobs = items.map((e) => JobModel.fromJson(e)).toList();
+        final List<JobModel> jobs = items.map((e) => JobModel.fromJson(e)).toList();
 
         state = state.copyWith(
           jobs: jobs,
@@ -206,24 +206,24 @@ class JobsNotifier extends StateNotifier<JobsState> {
     state = state.copyWith(isMoreLoading: true);
 
     try {
-      final nextSkip = state.skip + state.limit;
-      final queryParams = {
+      final int nextSkip = state.skip + state.limit;
+      final Map<String, String> queryParams = {
         'skip': nextSkip.toString(),
         'limit': state.limit.toString(),
         'status': 'active',
         ...state.filters.toQueryParams(),
       };
 
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs')
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs')
           .replace(queryParameters: queryParams);
 
-      final response = await http.get(uri, headers: await _getAuthHeaders());
+      final http.Response response = await http.get(uri, headers: await _getAuthHeaders());
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        final data = jsonDecode(response.body);
+        final dynamic data = jsonDecode(response.body);
         final List<dynamic> items = data['items'];
         
-        final newJobs = items.map((e) => JobModel.fromJson(e)).toList();
+        final List<JobModel> newJobs = items.map((e) => JobModel.fromJson(e)).toList();
 
         state = state.copyWith(
           jobs: [...state.jobs, ...newJobs],
@@ -250,7 +250,7 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<void> logJobView(int jobId) async {
     try {
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId/view');
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId/view');
       await http.post(uri, headers: await _getAuthHeaders());
     } catch (e) {
       // Background action, fail silently or log debug
@@ -260,9 +260,9 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> saveJob(int jobId) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId/save');
-      final response = await http.post(uri, headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId/save');
+      final http.Response response = await http.post(uri, headers: headers);
       return response.statusCode >= 200 && response.statusCode < 300;
     } catch (e) {
       print('Error saving job: $e');
@@ -272,9 +272,9 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> unsaveJob(int jobId) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId/save');
-      final response = await http.delete(uri, headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId/save');
+      final http.Response response = await http.delete(uri, headers: headers);
       return response.statusCode >= 200 && response.statusCode < 300;
     } catch (e) {
       print('Error unsaving job: $e');
@@ -284,13 +284,13 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<bool> applyToJob(int jobId, String coverLetter) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications');
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications');
       
       print('DEBUG: Applying to job $jobId');
       print('DEBUG: URL: $uri');
       
-      final response = await http.post(
+      final http.Response response = await http.post(
         uri, 
         headers: headers,
         body: jsonEncode({
@@ -311,9 +311,9 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<List<dynamic>> getApplicationsForJob(int jobId) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/job/$jobId');
-      final response = await http.get(uri, headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/applications/job/$jobId');
+      final http.Response response = await http.get(uri, headers: headers);
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return jsonDecode(response.body) as List<dynamic>;
@@ -327,12 +327,12 @@ class JobsNotifier extends StateNotifier<JobsState> {
 
   Future<JobModel?> getJobById(int jobId) async {
     try {
-      final headers = await _getAuthHeaders();
-      final uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
-      final response = await http.get(uri, headers: headers);
+      final Map<String, String> headers = await _getAuthHeaders();
+      final Uri uri = Uri.parse('${Environment.apiBaseUrl}/api/${Environment.apiVersion}/jobs/$jobId');
+      final http.Response response = await http.get(uri, headers: headers);
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        return JobModel.fromJson(jsonDecode(response.body));
+        return JobModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
       }
       return null;
     } catch (e) {

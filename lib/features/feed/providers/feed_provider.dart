@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/models/post_model.dart';
-import '../../../core/mock/mock_posts.dart';
 
 class FeedState {
   final List<PostModel> posts;
@@ -35,12 +34,11 @@ class FeedNotifier extends StateNotifier<FeedState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      // Simulate API call
+      // API call to be implemented
       await Future.delayed(const Duration(seconds: 1));
-      final posts = MockPosts.getPosts();
-
+      
       state = state.copyWith(
-        posts: posts,
+        posts: [], // Replace with real API call later
         isLoading: false,
       );
     } catch (e) {
@@ -52,7 +50,7 @@ class FeedNotifier extends StateNotifier<FeedState> {
   }
 
   void toggleLike(String postId) {
-    final updatedPosts = state.posts.map((post) {
+    final List<PostModel> updatedPosts = state.posts.map((post) {
       if (post.id == postId) {
         return post.copyWith(
           isLiked: !post.isLiked,

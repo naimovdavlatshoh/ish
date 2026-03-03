@@ -22,7 +22,7 @@ class InvitationUser {
   String get fullName => '$firstName $lastName'.trim();
 
   String get initials {
-    final n = fullName.trim().split(' ');
+    final List<String> n = fullName.trim().split(' ');
     return n.map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
   }
 
@@ -116,7 +116,7 @@ class InvitationsNotifier extends StateNotifier<InvitationsState> {
 
   Future<Map<String, String>> _headers() async {
     const s = TokenStorage();
-    final token = await s.getAccessToken();
+    final String? token = await s.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -130,12 +130,12 @@ class InvitationsNotifier extends StateNotifier<InvitationsState> {
   Future<void> loadReceived() async {
     state = state.copyWith(isLoadingReceived: true, error: null);
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations/received?skip=0&limit=100';
-      final response = await http.get(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations/received?skip=0&limit=100';
+      final http.Response response = await http.get(Uri.parse(url), headers: await _headers());
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final items = (data['items'] as List? ?? [])
-            .map((e) => InvitationModel.fromJson(e))
+        final dynamic data = jsonDecode(response.body);
+        final List<InvitationModel> items = (data['items'] as List? ?? [])
+            .map((e) => InvitationModel.fromJson(e as Map<String, dynamic>))
             .toList();
         state = state.copyWith(received: items, isLoadingReceived: false);
       } else {
@@ -149,12 +149,12 @@ class InvitationsNotifier extends StateNotifier<InvitationsState> {
   Future<void> loadSent() async {
     state = state.copyWith(isLoadingSent: true, error: null);
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations?received=false&sent=true&limit=100';
-      final response = await http.get(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations?received=false&sent=true&limit=100';
+      final http.Response response = await http.get(Uri.parse(url), headers: await _headers());
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final items = (data['items'] as List? ?? [])
-            .map((e) => InvitationModel.fromJson(e))
+        final dynamic data = jsonDecode(response.body);
+        final List<InvitationModel> items = (data['items'] as List? ?? [])
+            .map((e) => InvitationModel.fromJson(e as Map<String, dynamic>))
             .toList();
         state = state.copyWith(sent: items, isLoadingSent: false);
       } else {
@@ -167,8 +167,8 @@ class InvitationsNotifier extends StateNotifier<InvitationsState> {
 
   Future<bool> accept(int invitationId) async {
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations/$invitationId/accept';
-      final response = await http.post(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations/$invitationId/accept';
+      final http.Response response = await http.post(Uri.parse(url), headers: await _headers());
       if (response.statusCode == 200) {
         await loadReceived();
         return true;
@@ -179,8 +179,8 @@ class InvitationsNotifier extends StateNotifier<InvitationsState> {
 
   Future<bool> reject(int invitationId) async {
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations/$invitationId/reject';
-      final response = await http.post(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/invitations/$invitationId/reject';
+      final http.Response response = await http.post(Uri.parse(url), headers: await _headers());
       if (response.statusCode == 200) {
         await loadReceived();
         return true;

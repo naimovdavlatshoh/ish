@@ -148,7 +148,7 @@ class ConversationListNotifier extends StateNotifier<ConversationListState> {
 
   Future<Map<String, String>> _headers() async {
     const s = TokenStorage();
-    final token = await s.getAccessToken();
+    final String? token = await s.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -158,12 +158,12 @@ class ConversationListNotifier extends StateNotifier<ConversationListState> {
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat?skip=0&limit=50';
-      final response = await http.get(Uri.parse(url), headers: await _headers());
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat?skip=0&limit=50';
+      final http.Response response = await http.get(Uri.parse(url), headers: await _headers());
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final items = (data['items'] as List? ?? [])
-            .map((e) => ConversationModel.fromJson(e))
+        final dynamic data = jsonDecode(response.body);
+        final List<ConversationModel> items = (data['items'] as List? ?? [])
+            .map((e) => ConversationModel.fromJson(e as Map<String, dynamic>))
             .toList();
         state = state.copyWith(conversations: items, isLoading: false);
       } else {
@@ -251,7 +251,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
   Future<Map<String, String>> _headers() async {
     const s = TokenStorage();
-    final token = await s.getAccessToken();
+    final String? token = await s.getAccessToken();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -267,24 +267,24 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   Future<void> initialize() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final headers = await _headers();
+      final Map<String, String> headers = await _headers();
 
       // 1. Load conversation info
-      final convUrl = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat/$conversationId';
-      final convResp = await http.get(Uri.parse(convUrl), headers: headers);
+      final String convUrl = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat/$conversationId';
+      final http.Response convResp = await http.get(Uri.parse(convUrl), headers: headers);
       ConversationModel? conversation;
       if (convResp.statusCode == 200) {
-        conversation = ConversationModel.fromJson(jsonDecode(convResp.body));
+        conversation = ConversationModel.fromJson(jsonDecode(convResp.body) as Map<String, dynamic>);
       }
 
       // 2. Load message history
-      final msgUrl = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat/$conversationId/messages?skip=0&limit=50';
-      final msgResp = await http.get(Uri.parse(msgUrl), headers: headers);
+      final String msgUrl = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat/$conversationId/messages?skip=0&limit=50';
+      final http.Response msgResp = await http.get(Uri.parse(msgUrl), headers: headers);
       List<MessageModel> messages = [];
       if (msgResp.statusCode == 200) {
-        final data = jsonDecode(msgResp.body);
+        final dynamic data = jsonDecode(msgResp.body);
         messages = (data['items'] as List? ?? [])
-            .map((e) => MessageModel.fromJson(e))
+            .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
             .toList();
       }
 
@@ -302,14 +302,14 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   }
 
   Future<void> _connectWebSocket() async {
-    final token = await _getToken();
+    final String? token = await _getToken();
     if (token == null) return;
 
     // Build WebSocket URL from HTTP URL
-    final baseUrl = Environment.apiBaseUrl
+    final String baseUrl = Environment.apiBaseUrl
         .replaceFirst('https://', 'wss://')
         .replaceFirst('http://', 'ws://');
-    final wsUrl = '$baseUrl/ws/chat?token=$token';
+    final String wsUrl = '$baseUrl/ws/chat?token=$token';
 
     try {
       _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
@@ -335,9 +335,9 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
   void _handleMessage(dynamic raw) {
     try {
-      final json = jsonDecode(raw.toString()) as Map<String, dynamic>;
-      final type = json['type'] as String?;
-      final data = json['data'] as Map<String, dynamic>? ?? {};
+      final Map<String, dynamic> json = jsonDecode(raw.toString()) as Map<String, dynamic>;
+      final String? type = json['type'] as String?;
+      final Map<String, dynamic> data = json['data'] as Map<String, dynamic>? ?? {};
 
       switch (type) {
         case 'new_message':

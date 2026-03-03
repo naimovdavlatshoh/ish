@@ -56,11 +56,11 @@ class GlobalChatNotifier extends StateNotifier<GlobalChatState> {
   Future<void> _fetchUnreadCount() async {
     try {
       const s = TokenStorage();
-      final token = await s.getAccessToken();
+      final String? token = await s.getAccessToken();
       if (token == null) return;
 
-      final url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat?skip=0&limit=50';
-      final response = await http.get(
+      final String url = '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/chat?skip=0&limit=50';
+      final http.Response response = await http.get(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
@@ -69,8 +69,8 @@ class GlobalChatNotifier extends StateNotifier<GlobalChatState> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final items = data['items'] as List? ?? [];
+        final dynamic data = jsonDecode(response.body);
+        final List<dynamic> items = data['items'] as List? ?? [];
         int total = 0;
         final Map<int, int> byConv = {};
         for (final item in items) {
@@ -91,13 +91,13 @@ class GlobalChatNotifier extends StateNotifier<GlobalChatState> {
 
   Future<void> _connect() async {
     if (_disposed) return;
-    final token = await _getToken();
+    final String? token = await _getToken();
     if (token == null) return;
 
-    final baseUrl = Environment.apiBaseUrl
+    final String baseUrl = Environment.apiBaseUrl
         .replaceFirst('https://', 'wss://')
         .replaceFirst('http://', 'ws://');
-    final wsUrl = '$baseUrl/ws/chat?token=$token';
+    final String wsUrl = '$baseUrl/ws/chat?token=$token';
 
     try {
       _channel?.sink.close();
@@ -118,12 +118,12 @@ class GlobalChatNotifier extends StateNotifier<GlobalChatState> {
   void _onMessage(dynamic raw) {
     if (_disposed) return;
     try {
-      final json = jsonDecode(raw.toString()) as Map<String, dynamic>;
-      final type = json['type'] as String?;
-      final data = json['data'] as Map<String, dynamic>? ?? {};
+      final Map<String, dynamic> json = jsonDecode(raw.toString()) as Map<String, dynamic>;
+      final String? type = json['type'] as String?;
+      final Map<String, dynamic> data = json['data'] as Map<String, dynamic>? ?? {};
 
       if (type == 'new_message') {
-        final convId = data['conversationId'] as int? ?? 0;
+        final int convId = data['conversationId'] as int? ?? 0;
         final Map<int, int> updated = Map.from(state.unreadByConversation);
         updated[convId] = (updated[convId] ?? 0) + 1;
         state = state.copyWith(
@@ -131,7 +131,7 @@ class GlobalChatNotifier extends StateNotifier<GlobalChatState> {
           unreadByConversation: updated,
         );
       } else if (type == 'messages_read') {
-        final convId = data['conversationId'] as int? ?? 0;
+        final int convId = data['conversationId'] as int? ?? 0;
         final Map<int, int> updated = Map.from(state.unreadByConversation);
         final removed = updated[convId] ?? 0;
         updated[convId] = 0;

@@ -10,11 +10,11 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
     _load();
   }
 
-  final _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<void> _load() async {
     try {
-      final code = await _storage.read(key: _kLangKey);
+      final String? code = await _storage.read(key: _kLangKey);
       if (code != null) {
         state = AppLanguageExt.fromCode(code);
       }
@@ -49,12 +49,12 @@ extension BuildContextTr on BuildContext {
 /// Extension on WidgetRef for easy translation 
 extension WidgetRefTr on WidgetRef {
   String tr(String key) {
-    final code = read(langCodeProvider);
+    final String code = read(langCodeProvider);
     return AppStrings.tr(key, code);
   }
 
   String watchTr(String key) {
-    final code = watch(langCodeProvider);
+    final String code = watch(langCodeProvider);
     return AppStrings.tr(key, code);
   }
 }

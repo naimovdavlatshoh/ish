@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../shared/models/user_model.dart';
-import '../../../core/mock/mock_users.dart';
 import '../../../core/config/env.dart';
 import '../../../core/services/token_storage.dart';
 
@@ -57,7 +56,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         // Mock authentication - accept any credentials for demo
         if (phone.isNotEmpty && password.isNotEmpty) {
-          final user = MockUsers.currentUser;
+          final UserModel user = UserModel(
+            id: '1',
+            name: 'User',
+            email: 'user@example.com',
+            headline: 'Professional',
+            location: 'Tashkent, Uzbekistan',
+          );
           state = AuthState(
             user: user,
             isAuthenticated: true,
@@ -72,11 +77,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/auth/login',
       );
 
-      final response = await _client.post(
+      final http.Response response = await _client.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +96,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final Map<String, dynamic> data =
             jsonDecode(response.body) as Map<String, dynamic>;
 
-        final accessToken = data['access_token'] as String?;
+        final String? accessToken = data['access_token'] as String?;
 
         if (accessToken == null || accessToken.isEmpty) {
           state = state.copyWith(
@@ -156,7 +161,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             email.isNotEmpty &&
             phone.isNotEmpty &&
             password.isNotEmpty) {
-          final user = UserModel(
+          final UserModel user = UserModel(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
             name: '$firstName $lastName',
             email: email,
@@ -178,11 +183,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
-      final uri = Uri.parse(
+      final Uri uri = Uri.parse(
         '${Environment.apiBaseUrl}/api/${Environment.apiVersion}/auth/register',
       );
 
-      final response = await _client.post(
+      final http.Response response = await _client.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
@@ -200,7 +205,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final Map<String, dynamic> data =
             jsonDecode(response.body) as Map<String, dynamic>;
 
-        final accessToken = data['access_token'] as String?;
+        final String? accessToken = data['access_token'] as String?;
 
         if (accessToken != null && accessToken.isNotEmpty) {
           await _tokenStorage.saveAccessToken(accessToken);
